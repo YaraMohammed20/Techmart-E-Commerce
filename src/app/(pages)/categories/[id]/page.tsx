@@ -6,10 +6,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { getProductsByCategory } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Product } from "@/interfaces";
 
 export default function CategoryProductsPage() {
   const { id } = useParams();
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +20,7 @@ export default function CategoryProductsPage() {
       try {
         setLoading(true);
         const data = await getProductsByCategory(id as string);
-        setProducts(data.data);
+        setProducts(data.data); // data.data is typed as Product[]
       } catch (error) {
         console.error(error);
       } finally {
@@ -41,8 +42,14 @@ export default function CategoryProductsPage() {
   if (products.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
-        <h2 className="text-xl font-semibold mb-4">No products found for this category.</h2>
-        <Button variant="outline" className="w-fit mt-2 bg-black text-white transition" asChild>
+        <h2 className="text-xl font-semibold mb-4">
+          No products found for this category.
+        </h2>
+        <Button
+          variant="outline"
+          className="w-fit mt-2 bg-black text-white transition"
+          asChild
+        >
           <Link href="/products">Browse Products</Link>
         </Button>
       </div>
@@ -73,6 +80,3 @@ export default function CategoryProductsPage() {
     </div>
   );
 }
-
-
-

@@ -244,8 +244,19 @@ export async function createCheckoutSession(
       headers: { "Content-Type": "application/json", ...getTokenHeader(token) },
     }
   );
-  return handleResponse(res);
+
+  const text = await res.text();
+  if (!text) throw new Error("API returned empty response");
+
+  const data: CheckoutSessionResponse = JSON.parse(text);
+
+  if (!res.ok || data.status === "fail") {
+    throw new Error(data?.session?.url || "Something went wrong");
+  }
+
+  return data;
 }
+
 
 export async function deleteBill(
   token: string,

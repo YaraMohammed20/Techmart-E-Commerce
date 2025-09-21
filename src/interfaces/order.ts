@@ -16,8 +16,10 @@ export interface Order {
 
 export interface CheckoutSessionResponse {
   status: string;
-  url?: string;
-  [key: string]: any;
+  session?: {
+    url: string;
+    [key: string]: any;
+  };
 }
 
 export interface ShippingAddress {

@@ -18,6 +18,7 @@ export default function SignUpPage() {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -34,11 +35,11 @@ export default function SignUpPage() {
     }
 
     try {
+      setLoading(true);
+
       const res = await fetch("https://ecommerce.routemisr.com/api/v1/auth/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
@@ -51,13 +52,16 @@ export default function SignUpPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Failed to register");
+        const msg = Array.isArray(data.message) ? data.message.join(", ") : data.message;
+        throw new Error(msg || "Failed to register");
       }
 
       alert("Registration successful! Please log in.");
       router.push("/auth/signin");
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,8 +127,8 @@ export default function SignUpPage() {
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-500"
           />
 
-          <Button type="submit" className="w-full">
-            Sign Up
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Signing Up..." : "Sign Up"}
           </Button>
 
           <p className="text-center text-sm text-gray-600">

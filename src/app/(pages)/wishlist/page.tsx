@@ -25,7 +25,7 @@ export default function WishlistPage() {
       setLoading(true);
       const res = await getUserWishlist(token);
       setWishlist(res.data || []);
-    } catch (err: any) {
+    } catch {
       toast.error("Failed to load wishlist");
     } finally {
       setLoading(false);
@@ -70,23 +70,23 @@ export default function WishlistPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">My Wishlist</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {wishlist.map((product) => (
           <div
             key={product._id}
-            className="border rounded-lg p-4 flex flex-col justify-between"
+            className="border rounded-lg p-4 flex flex-col justify-between hover:shadow-lg transition"
           >
-            <Link href={`/products/${product._id}`}>
+            <Link href={`/products/${product._id}`} className="flex-1">
               <div className="relative w-full h-48 mb-4">
                 <Image
-                  src={product.imageCover}
+                  src={product.imageCover || "/placeholder.png"}
                   alt={product.title}
                   fill
                   className="object-cover rounded-md"
                 />
               </div>
-              <h3 className="font-semibold">{product.title}</h3>
-              <p className="text-primary font-bold">${product.price}</p>
+              <h3 className="font-semibold text-sm md:text-base line-clamp-2">{product.title}</h3>
+              <p className="text-primary font-bold mt-2 text-lg">${product.price}</p>
             </Link>
 
             <div className="flex gap-2 mt-4">
@@ -97,8 +97,8 @@ export default function WishlistPage() {
               >
                 <Heart className="h-5 w-5 text-red-500" />
               </Button>
-              <Link href={`/products/${product._id}`}>
-                <Button className="flex-1">
+              <Link href={`/products/${product._id}`} className="flex-1">
+                <Button className="w-full flex items-center justify-center">
                   <ShoppingCart className="h-5 w-5 mr-2" /> View
                 </Button>
               </Link>

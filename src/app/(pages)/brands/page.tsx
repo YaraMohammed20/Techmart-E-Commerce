@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getBrands } from "@/lib/api";
+import { Brand } from "@/interfaces/brand";
 
 export default async function BrandsPage() {
   const data = await getBrands();
-  const brands = data?.data || [];
+  const brands: Brand[] = data?.data || [];
+
 
   return (
     <main className="container mx-auto p-6">
@@ -14,7 +16,7 @@ export default async function BrandsPage() {
         <p className="text-gray-500 text-center">No brands found.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {brands.map((brand: any) => (
+          {brands.map((brand: Brand) => (
             <Link
               key={brand._id}
               href={`/brands/${brand._id}`}

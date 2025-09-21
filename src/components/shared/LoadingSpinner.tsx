@@ -2,6 +2,7 @@ import React from "react";
 
 interface LoadingSpinnerProps {
   className?: string; 
+  size?: number;
 }
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ className }) => {

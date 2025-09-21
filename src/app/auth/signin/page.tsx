@@ -11,34 +11,40 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    const result = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-    });
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
 
-    console.log("SignIn result:", result);
+      if (result?.error) {
+        setError(result.error || "Invalid email or password");
+        return;
+      }
 
-    if (result?.error) {
-      setError("Invalid email or password");
-    } else {
+      // Fetch session to get accessToken
       const response = await fetch("/api/auth/session");
       const session = await response.json();
 
-      console.log("Session after login:", session);
-
       if (session?.accessToken) {
         localStorage.setItem("userToken", session.accessToken);
-        console.log("Token saved to localStorage:", session.accessToken);
+        router.push("/"); // Redirect to home
       } else {
-        console.error("No accessToken found in session");
+        setError("Login successful but no access token received.");
+        console.error("Session object:", session);
       }
-      router.push("/");
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,8 +73,8 @@ export default function SignInPage() {
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-500"
           />
 
-          <Button type="submit" className="w-full">
-            Sign In
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Signing In..." : "Sign In"}
           </Button>
 
           <p className="text-center text-sm text-gray-600">

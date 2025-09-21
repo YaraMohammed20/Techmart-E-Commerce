@@ -13,11 +13,16 @@ import {
 import { cn } from "@/lib/utils";
 import React, { useState } from "react";
 
+interface NavItem {
+  href: string;
+  label: string;
+}
+
 export function Navbar() {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { href: "/products", label: "Products" },
     { href: "/brands", label: "Brands" },
     { href: "/categories", label: "Categories" },
@@ -62,7 +67,6 @@ export function Navbar() {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
-            {/* User Account */}
             <Link href="/user">
               <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
@@ -70,7 +74,6 @@ export function Navbar() {
               </Button>
             </Link>
 
-            {/* Wishlist */}
             <Link href="/wishlist">
               <Button variant="ghost" size="icon" className="relative">
                 <Heart className="h-5 w-5" />
@@ -78,7 +81,6 @@ export function Navbar() {
               </Button>
             </Link>
 
-            {/* Shopping Cart */}
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
@@ -86,7 +88,6 @@ export function Navbar() {
               </Button>
             </Link>
 
-            {/* Sign In Button */}
             <Link href="/auth/signin">
               <Button
                 variant="default"
@@ -97,7 +98,7 @@ export function Navbar() {
               </Button>
             </Link>
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu Toggle */}
             <Button
               variant="ghost"
               size="icon"
@@ -110,13 +111,13 @@ export function Navbar() {
           </div>
         </div>
 
+        {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute start-0 end-0 border-t bg-background">
+          <div className="lg:hidden absolute inset-x-0 border-t bg-background">
             <div className="container mx-auto px-4 py-4">
               <nav className="flex flex-col space-y-2">
                 {navItems.map((navItem) => {
                   const isActive = pathname.startsWith(navItem.href);
-
                   return (
                     <Link
                       key={navItem.href}

@@ -7,3 +7,5 @@ export * from "./category";
 export * from "./brand";
 export * from "./cart";
 export * from "./order";
+export * from "./Wishlist";
+export * from "./user";

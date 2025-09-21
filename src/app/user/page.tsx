@@ -10,7 +10,7 @@ import {
   addAddress as apiAddAddress,
   removeAddress as apiRemoveAddress,
 } from "@/lib/api";
-import {Address} from "@/interfaces/user";
+import { Address } from "@/interfaces/user";
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -28,11 +28,15 @@ export default function ProfilePage() {
 
     getUserProfile(token)
       .then((res) => setUser(res.data))
-      .catch(() => toast.error("Failed to load profile"));
+      .catch((err: unknown) => {
+        toast.error(err instanceof Error ? err.message : "Failed to load profile");
+      });
 
     getUserAddresses(token)
       .then((res) => setAddresses(res.data || []))
-      .catch(() => toast.error("Failed to load addresses"))
+      .catch((err: unknown) => {
+        toast.error(err instanceof Error ? err.message : "Failed to load addresses");
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -47,8 +51,8 @@ export default function ProfilePage() {
       setNewAddress({ name: "", details: "", phone: "", city: "" });
       const updated = await getUserAddresses(token);
       setAddresses(updated.data || []);
-    } catch {
-      toast.error("Failed to add address");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to add address");
     } finally {
       setLoading(false);
     }
@@ -63,8 +67,8 @@ export default function ProfilePage() {
       await apiRemoveAddress(token, id);
       toast.success("Address removed!");
       setAddresses((prev) => prev.filter((addr) => addr._id !== id));
-    } catch {
-      toast.error("Failed to remove address");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to remove address");
     } finally {
       setLoading(false);
     }
@@ -123,4 +127,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

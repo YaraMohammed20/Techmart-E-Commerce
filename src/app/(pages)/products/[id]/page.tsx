@@ -23,125 +23,91 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addingToWishlist, setAddingToWishlist] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false); // ✅ red heart state
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
-  async function fetchProducts() {
-    try {
-      setLoading(true);
-      const res = await fetch(
-        `https://ecommerce.routemisr.com/api/v1/products/${id}`
-      );
-      const data: SingleProductResponse = await res.json();
-
-      if (!res.ok) throw new Error("Failed to load product details.");
-      setProduct(data.data);
-    } catch {
-      setError("Failed to load product details.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  // Fetch product details
   useEffect(() => {
-    if (id) fetchProducts();
+    if (!id) return;
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`https://ecommerce.routemisr.com/api/v1/products/${id}`);
+        const data: SingleProductResponse = await res.json();
+
+        if (!res.ok) throw new Error("Failed to load product details.");
+        setProduct(data.data);
+      } catch {
+        setError("Failed to load product details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
   }, [id]);
 
-  async function addProductToCart(
-    productId: string
-  ): Promise<CartResponse | undefined> {
+  // Add product to cart
+  const addProductToCart = async (productId: string) => {
     const token = localStorage.getItem("userToken");
-    if (!token) {
-      toast.error("Please login first!");
-      return;
-    }
+    if (!token) return toast.error("Please login first!");
 
     try {
       setAddingToCart(true);
-
       const res = await fetch("https://ecommerce.routemisr.com/api/v1/cart", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          token,
-        },
+        headers: { "Content-Type": "application/json", token },
         body: JSON.stringify({ productId, count: 1 }),
       });
 
       const data: CartResponse = await res.json();
-
-      if (!res.ok || data.status !== "success") {
-        throw new Error(data.message || "Failed to add product to cart");
-      }
-
-      toast.success("Product added to cart successfully!");
-      return data;
+      if (!res.ok || data.status !== "success") throw new Error(data.message || "Failed to add product to cart");
+      toast.success("Product added to cart!");
+      router.push("/cart");
     } catch (err: any) {
       toast.error(err.message || "Error adding product to cart");
     } finally {
       setAddingToCart(false);
     }
-  }
+  };
 
-  async function addProductToWishlist(productId: string) {
+  // Add product to wishlist
+  const addProductToWishlist = async (productId: string) => {
     const token = localStorage.getItem("userToken");
-    if (!token) {
-      toast.error("Please login first!");
-      return;
-    }
+    if (!token) return toast.error("Please login first!");
 
     try {
       setAddingToWishlist(true);
-
-      const res = await fetch(
-        "https://ecommerce.routemisr.com/api/v1/wishlist",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            token,
-          },
-          body: JSON.stringify({ productId }),
-        }
-      );
-
+      const res = await fetch("https://ecommerce.routemisr.com/api/v1/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", token },
+        body: JSON.stringify({ productId }),
+      });
       const data = await res.json();
-
-      if (!res.ok || data.status !== "success") {
-        throw new Error(data.message || "Failed to add product to wishlist");
-      }
-
-      setIsWishlisted(true); 
-      toast.success("Product added to wishlist!");
+      if (!res.ok || data.status !== "success") throw new Error(data.message || "Failed to add wishlist");
+      setIsWishlisted(true);
+      toast.success("Added to wishlist!");
     } catch (err: any) {
-      toast.error(err.message || "Error adding product to wishlist");
+      toast.error(err.message || "Error adding to wishlist");
     } finally {
       setAddingToWishlist(false);
     }
-  }
+  };
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
+  const formatPrice = (price: number) => 
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(price);
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center min-h-[400px]">
-          <LoadingSpinner />
-        </div>
+      <div className="container mx-auto px-4 py-8 flex justify-center min-h-[400px]">
+        <LoadingSpinner />
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <p className="text-red-500 mb-4">{error || "Product not found"}</p>
-          <Button onClick={() => router.back()}>Go Back</Button>
-        </div>
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p className="text-red-500 mb-4">{error || "Product not found"}</p>
+        <Button onClick={() => router.back()}>Go Back</Button>
       </div>
     );
   }
@@ -157,10 +123,8 @@ export default function ProductDetailPage() {
               alt={product.title}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
-
           {product.images.length > 1 && (
             <div className="flex gap-2 overflow-x-auto">
               {product.images.map((image, index) => (
@@ -168,18 +132,10 @@ export default function ProductDetailPage() {
                   key={index}
                   onClick={() => setSelectedImage(index)}
                   className={`relative w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border-2 ${
-                    selectedImage === index
-                      ? "border-primary"
-                      : "border-gray-200"
+                    selectedImage === index ? "border-primary" : "border-gray-200"
                   }`}
                 >
-                  <Image
-                    src={image}
-                    alt={`${product.title} ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
+                  <Image src={image} alt={`${product.title} ${index + 1}`} fill className="object-cover" />
                 </button>
               ))}
             </div>
@@ -188,111 +144,72 @@ export default function ProductDetailPage() {
 
         {/* Product Info */}
         <div className="space-y-6">
-          {/* Brand */}
           <div className="text-sm text-muted-foreground uppercase tracking-wide">
-            <Link
-              href={`/brands/${product.brand._id}`}
-              className="hover:text-primary hover:underline transition-colors"
-            >
+            <Link href={`/brands/${product.brand._id}`} className="hover:text-primary hover:underline">
               {product.brand.name}
             </Link>
           </div>
-
-          {/* Title */}
           <h1 className="text-3xl font-bold">{product.title}</h1>
 
-          {/* Rating */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               {renderStars(product.ratingsAverage)}
-              <span className="ml-2 text-sm text-muted-foreground">
-                {product.ratingsAverage} ({product.ratingsQuantity} reviews)
-              </span>
+              <span className="ml-2 text-sm text-muted-foreground">{product.ratingsAverage} ({product.ratingsQuantity} reviews)</span>
             </div>
-            <span className="text-sm text-muted-foreground">
-              {product.sold} sold
-            </span>
+            <span className="text-sm text-muted-foreground">{product.sold} sold</span>
           </div>
 
-          {/* Price */}
-          <div className="text-3xl font-bold text-primary">
-            {formatPrice(product.price)}
-          </div>
+          <div className="text-3xl font-bold text-primary">{formatPrice(product.price)}</div>
 
-          {/* Description */}
           <div className="space-y-2">
             <h3 className="font-semibold">Description</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              {product.description}
-            </p>
+            <p className="text-muted-foreground leading-relaxed">{product.description}</p>
           </div>
 
-          {/* Category & Subcategory */}
           <div className="flex flex-wrap gap-2">
             <Link
               href={`/categories/${product.category._id}`}
-              className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm hover:bg-secondary/80 transition-colors"
+              className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm hover:bg-secondary/80"
             >
               {product.category.name}
             </Link>
-
             {product.subcategory.map((sub: Subcategory) => (
               <Link
                 key={sub._id}
                 href={`/subcategory/${sub._id}`}
-                className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-sm hover:bg-muted/80 transition-colors"
+                className="px-3 py-1 bg-muted text-muted-foreground rounded-full text-sm hover:bg-muted/80"
               >
                 {sub.name}
               </Link>
             ))}
           </div>
 
-          {/* Stock Status */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Stock:</span>
-            <span
-              className={`text-sm ${
-                product.quantity > 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {product.quantity > 0
-                ? `${product.quantity} available`
-                : "Out of stock"}
+            <span className={`text-sm ${product.quantity > 0 ? "text-green-600" : "text-red-600"}`}>
+              {product.quantity > 0 ? `${product.quantity} available` : "Out of stock"}
             </span>
           </div>
 
-          {/* Action Buttons */}
+          {/* Actions */}
           <div className="flex gap-4">
-            {/* Add to Cart */}
             <Button
               size="lg"
               className="flex-1"
               disabled={product.quantity === 0 || addingToCart}
-              onClick={async () => {
-                const res = await addProductToCart(product._id);
-                if (res) router.push("/cart");
-              }}
+              onClick={() => addProductToCart(product._id)}
             >
-              {addingToCart ? (
-                <LoadingSpinner className="h-5 w-5 mr-2" />
-              ) : (
-                <ShoppingCart className="h-5 w-5 mr-2" />
-              )}
+              {addingToCart ? <LoadingSpinner className="h-5 w-5 mr-2" /> : <ShoppingCart className="h-5 w-5 mr-2" />}
               {addingToCart ? "Adding..." : "Add to Cart"}
             </Button>
 
-            {/* Wishlist */}
             <Button
               variant="outline"
               size="lg"
               disabled={addingToWishlist}
               onClick={() => addProductToWishlist(product._id)}
             >
-              <Heart
-                className={`h-5 w-5 ${
-                  isWishlisted ? "text-red-500 fill-red-500" : ""
-                }`}
-              />
+              <Heart className={`h-5 w-5 ${isWishlisted ? "text-red-500 fill-red-500" : ""}`} />
             </Button>
           </div>
         </div>

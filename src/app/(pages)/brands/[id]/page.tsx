@@ -6,10 +6,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { getProductsByBrand } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Product } from "@/interfaces/product";
+
 
 export default function BrandProductsPage() {
   const { id } = useParams();
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,8 +20,8 @@ export default function BrandProductsPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getProductsByBrand(id as string);
-        setProducts(data.data);
+        const data = await getProductsByBrand(id as string); // typed in API function
+        setProducts(data.data); // TypeScript knows data.data is Product[]
       } catch (error) {
         console.error(error);
       } finally {
@@ -53,7 +55,7 @@ export default function BrandProductsPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Products by Brand</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
+        {products.map((product: Product) => (
           <div key={product._id} className="border rounded-lg p-4">
             <Image
               src={product.imageCover}

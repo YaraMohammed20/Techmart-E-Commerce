@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/helpers/currency";
 import toast from "react-hot-toast";
+import { CartResponse, CartProductItem } from "@/interfaces";
 import {
   getUserCart,
   removeCartItem,
@@ -16,7 +17,7 @@ import {
 } from "@/lib/api";
 
 export default function CartPage() {
-  const [cart, setCart] = useState<any>(null);
+  const [cart, setCart] = useState<CartResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchCart = async () => {
@@ -82,7 +83,6 @@ export default function CartPage() {
     fetchCart();
   }, []);
 
-  // Loading state
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
@@ -121,73 +121,80 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
-          {cart.data.products.map((item: any) => (
-            <div key={item._id} className="flex gap-4 p-4 border rounded-lg">
-              {/* Product Image */}
-              <div className="relative w-20 h-20 flex-shrink-0">
-                <Image
-                  src={item.product.imageCover}
-                  alt={item.product.title}
-                  fill
-                  className="object-cover rounded-md"
-                  sizes="80px"
-                />
-              </div>
+          {cart.data.products.map((item: CartProductItem) => {
+            // Ensure product is fully loaded
+            const product =
+              typeof item.product === "string" ? null : item.product;
+            if (!product) return null;
 
-              {/* Product Info */}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold line-clamp-2">
-                  <Link
-                    href={`/products/${item.product._id}`}
-                    className="hover:text-primary transition-colors"
-                  >
-                    {item.product.title}
-                  </Link>
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {item.product.brand?.name}
-                </p>
-                <p className="font-semibold text-primary mt-2">
-                  {formatPrice(item.price)}
-                </p>
-              </div>
+            return (
+              <div key={item._id} className="flex gap-4 p-4 border rounded-lg">
+                {/* Product Image */}
+                <div className="relative w-20 h-20 flex-shrink-0">
+                  <Image
+                    src={product.imageCover}
+                    alt={product.title}
+                    fill
+                    className="object-cover rounded-md"
+                    sizes="80px"
+                  />
+                </div>
 
-              {/* Quantity & Remove */}
-              <div className="flex flex-col items-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveItem(item.product._id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                {/* Product Info */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold line-clamp-2">
+                    <Link
+                      href={`/products/${product._id}`}
+                      className="hover:text-primary transition-colors"
+                    >
+                      {product.title}
+                    </Link>
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {product.brand?.name}
+                  </p>
+                  <p className="font-semibold text-primary mt-2">
+                    {formatPrice(item.price)}
+                  </p>
+                </div>
 
-                <div className="flex items-center gap-2">
+                {/* Quantity & Remove */}
+                <div className="flex flex-col items-end gap-2">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    onClick={() =>
-                      handleUpdateQuantity(item.product._id, item.count - 1)
-                    }
+                    onClick={() => handleRemoveItem(product._id)}
                   >
-                    <Minus className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
 
-                  <span className="w-8 text-center">{item.count}</span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleUpdateQuantity(product._id, item.count - 1)
+                      }
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      handleUpdateQuantity(item.product._id, item.count + 1)
-                    }
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
+                    <span className="w-8 text-center">{item.count}</span>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleUpdateQuantity(product._id, item.count + 1)
+                      }
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Clear Cart */}
           <div className="mt-6">

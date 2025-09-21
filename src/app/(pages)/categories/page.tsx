@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { getCategories } from "@/lib/api";
+import { Category } from "@/interfaces";
 
 export default async function CategoriesPage() {
   const data = await getCategories();
-  const categories = data?.data || [];
+  const categories: Category[] = data?.data || [];
 
   return (
     <main className="container mx-auto p-6">
@@ -13,7 +14,7 @@ export default async function CategoriesPage() {
         <p className="text-gray-500 text-center">No categories found.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {categories.map((cat: any) => (
+          {categories.map((cat) => (
             <Link
               key={cat._id}
               href={`/categories/${cat._id}`}
@@ -21,10 +22,10 @@ export default async function CategoriesPage() {
             >
               <p className="font-semibold">{cat.name}</p>
             </Link>
-
           ))}
         </div>
       )}
     </main>
   );
 }
+

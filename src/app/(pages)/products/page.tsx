@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Product } from "@/interfaces";
-import ProductCard  from "@/components/products/ProductCard";
+import ProductCard from "@/components/products/ProductCard";
 import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Grid, List } from "lucide-react";
@@ -51,17 +51,17 @@ export default function ProductsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Products</h1>
-        <p className="text-muted-foreground">
-          Discover amazing products from our collection
-        </p>
-      </div>
+      <div className="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Products</h1>
+          <p className="text-muted-foreground">
+            Discover amazing products from our collection
+          </p>
+        </div>
 
-      {/* Controls (Grid / List Toggle) */}
-      <div className="flex flex-col lg:flex-row gap-4 mb-8">
+        {/* View Toggle */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center border rounded-md">
+          <div className="flex items-center border rounded-md overflow-hidden">
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"
@@ -82,11 +82,13 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Products Grid */}
+      {/* Products */}
       {loading ? (
         <div className="flex justify-center items-center min-h-[200px]">
           <LoadingSpinner />
         </div>
+      ) : products.length === 0 ? (
+        <p className="text-center text-gray-500">No products found.</p>
       ) : (
         <div
           className={`grid gap-6 ${
@@ -96,7 +98,11 @@ export default function ProductsPage() {
           }`}
         >
           {products.map((product) => (
-            <ProductCard key={product._id} product={product} viewMode={viewMode} />
+            <ProductCard
+              key={product._id}
+              product={product}
+              viewMode={viewMode}
+            />
           ))}
         </div>
       )}

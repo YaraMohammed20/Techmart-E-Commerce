@@ -11,7 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const footerSections = [
+// Footer sections
+const footerSections: {
+  title: string;
+  links: { title: string; href: string }[];
+}[] = [
   {
     title: "Shop",
     links: [
@@ -54,7 +58,12 @@ const footerSections = [
   },
 ];
 
-const socialLinks = [
+// Social links
+const socialLinks: {
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+  label: string;
+}[] = [
   { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
   { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
   { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
@@ -101,23 +110,26 @@ export function Footer() {
 
             {/* Social Links */}
             <div className="flex space-x-2">
-              {socialLinks.map((social) => (
-                <Button
-                  key={social.label}
-                  variant="outline"
-                  size="icon"
-                  asChild
-                >
-                  <Link
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
+              {socialLinks.map((social) => {
+                const Icon = social.icon;
+                return (
+                  <Button
+                    key={social.label}
+                    variant="outline"
+                    size="icon"
+                    asChild
                   >
-                    <social.icon className="h-4 w-4" />
-                    <span className="sr-only">{social.label}</span>
-                  </Link>
-                </Button>
-              ))}
+                    <Link
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="sr-only">{social.label}</span>
+                    </Link>
+                  </Button>
+                );
+              })}
             </div>
           </div>
 
@@ -142,7 +154,9 @@ export function Footer() {
             </div>
           ))}
         </div>
+
         <Separator className="my-8" />
+
         {/* Newsletter Signup */}
         <div>
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
